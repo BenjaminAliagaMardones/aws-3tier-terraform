@@ -34,19 +34,26 @@ resource "aws_route_table" "private" {
 resource "aws_route_table_association" "public" {
   count = length(var.public_subnet_cidr)
   subnet_id = aws_subnet.public[count.index].id
-  route_table_id = aws_route_table.public
+  route_table_id = aws_route_table.public.id
 }
 
-#asociar todas las subredes privada a la tabla privada
-resource "aws_route_table_association" "private" {
-  count = length(var.private_subnet_cidr)
-  subnet_id = aws_subnet.private[count.index].id
-  route_table_id = aws_route_table.private
+#asociar subnets del web tier a la tabla privada
+resource "aws_route_table_association" "web" {
+  count = length(var.web_subnet_cidr)
+  subnet_id = aws_subnet.web[count.index].id
+  route_table_id = aws_route_table.private.id
+}
+
+#asociar subnets del app tier a la tabla privada
+resource "aws_route_table_association" "app" {
+  count = length(var.app_subnet_cidr)
+  subnet_id = aws_subnet.app[count.index].id
+  route_table_id = aws_route_table.private.id
 }
 
 #asociacion de las subredes de database a la tabla database
 resource "aws_route_table_association" "database" {
   count = length(var.database_subnet_cidr)
   subnet_id = aws_subnet.data[count.index].id
-  route_table_id = aws_route_table.private
+  route_table_id = aws_route_table.private.id
 }
